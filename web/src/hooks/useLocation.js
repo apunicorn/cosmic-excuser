@@ -6,7 +6,7 @@ export default function useLocation() {
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
-            (pos) => setCoords({lat: pos.coords.latitude}, {long: pos.coords.longitude}),
+            (pos) => setCoords({lat: pos.coords.latitude, lon: pos.coords.longitude}),
             (err) => setErr(err.message),
         )
     }, [])

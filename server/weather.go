@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 type WeatherResponse struct {
@@ -14,14 +17,24 @@ type WeatherResponse struct {
 	} `json:"current"`
 }
 
-func GetWeather(lat, long float64) (WeatherResponse, error) {
+func GetWeather(lat, lon float64) (WeatherResponse, error) {
 	var weather WeatherResponse
-	const weatherURL = "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
+
+	query := url.Values{}
+	query.Set("latitude", strconv.FormatFloat(lat, 'f', 4, 64))
+	query.Set("longitude", strconv.FormatFloat(lon, 'f', 4, 64))
+
+	query.Set("current", "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code")
+	weatherURL := "https://api.open-meteo.com/v1/forecast?" + query.Encode()
+
 	resp, err := http.Get(weatherURL)
 	if err != nil {
-		panic(err)
+		return weather, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return weather, fmt.Errorf("open-meteo returned %s", resp.Status)
+	}
 	err = json.NewDecoder(resp.Body).Decode(&weather)
 	return weather, err
 }

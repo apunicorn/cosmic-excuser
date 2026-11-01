@@ -4,10 +4,17 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func WeatherAPI(w http.ResponseWriter, r *http.Request) {
-	weather, err := GetWeather(lat, long)
+	lat, latErr := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
+	lon, longErr := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
+	if latErr != nil || longErr != nil {
+		http.Error(w, "lat and lon are required numbers", http.StatusBadRequest)
+		return
+	}
+	weather, err := GetWeather(lat, lon)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 		return
