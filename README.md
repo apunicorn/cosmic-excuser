@@ -4,6 +4,9 @@
 
 Cosmic Excuser takes whatever you did and writes you a convincing excuse that blames the weather, the planets and your zodiac sign. Mercury was in retrograde, it was 38°C and humid, and you're a Scorpio. None of this was your fault. Feel free to use this excuse for work, your spouse, or anywhere else. 
 
+<img width="967" height="863" alt="Screenshot 2026-11-02 at 10 23 55 AM" src="https://github.com/user-attachments/assets/a56379ac-8839-4ad7-aadb-3b9316c0dccc" />
+
+
 ## How it works
 
 1. You describe what you did and pick your zodiac sign. The browser also shares your location.
