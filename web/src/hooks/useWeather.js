@@ -6,6 +6,7 @@ export default function useWeather(coords) {
 
   useEffect(() => {
     if (!coords) return
+    // get weather using lat/long 
     fetch(`/api/weather?lat=${coords.lat}&lon=${coords.lon}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.statusText))))
       .then(setWeather)

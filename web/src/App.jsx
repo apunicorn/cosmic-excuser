@@ -4,7 +4,7 @@ import InputComponent from './components/InputComponent.jsx'
 import useLocation from './hooks/useLocation.js'
 
 function App() { 
-  const {coords, err: locationError} = useLocation()
+  const {coords, err: locationError} = useLocation() // browser location
   const [excuse, setExcuse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -13,14 +13,16 @@ function App() {
     setLoading(true)
     setError('')
     setExcuse('')
+
     try {
-      const resp = await fetch('/api/excuse', {
+      const resp = await fetch('/api/excuse', { // get excuse from gemini on backend
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, sign, lat: coords.lat, lon: coords.lon }),
+        body: JSON.stringify({ action, sign, lat: coords.lat, lon: coords.lon }), // weather API uses lat/long
       })
 
-      if (!resp.ok) throw new Error(await resp.text())
+      if (!resp.ok) throw new Error(await resp.text()) // show the server's error
+        
       const data = await resp.json()
       setExcuse(data.excuse)
     } catch (e) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"slices"
@@ -9,16 +10,16 @@ import (
 	"strings"
 )
 
-const maxActionLength = 500
+const maxActionLength = 500 // cap on what the user can type. don't want a thesis
 
 type excuseRequest struct {
 	Action string   `json:"action"`
 	Sign   string   `json:"sign"`
-	Lat    *float64 `json:"lat"`
+	Lat    *float64 `json:"lat"` // pointers so location is optional
 	Lon    *float64 `json:"lon"`
 }
 
-var zodiacSigns = []string{
+var zodiacSigns = []string{ // zodiac signs are not up for question
 	"Aries",
 	"Taurus",
 	"Gemini",
@@ -35,42 +36,52 @@ var zodiacSigns = []string{
 
 func ExcuseAPI(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "use POST", http.StatusMethodNotAllowed)
+		http.Error(w, "use POST", http.StatusMethodNotAllowed) // 405 wrong method
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	r.Body = http.MaxBytesReader(w, r.Body, 4096) // limit request size
 	var req excuseRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		var tooBig *http.MaxBytesError
+		if errors.As(err, &tooBig) {
+			http.Error(w, "request too large", http.StatusRequestEntityTooLarge) // 413 err
+			return
+		}
+		http.Error(w, "invalid JSON", http.StatusBadRequest) // 400 bad request
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest) // 400 bad request
 		return
 	}
 	req.Action = strings.TrimSpace(req.Action)
 	if req.Action == "" || len(req.Action) > maxActionLength {
-		http.Error(w, "action must be 1-500 characters", http.StatusBadRequest)
+		http.Error(w, "action must be 1-500 characters", http.StatusBadRequest) // 400 bad request
 		return
 	}
 
 	if req.Sign == "" {
-		http.Error(w, "No sign chosen", http.StatusBadRequest)
+		http.Error(w, "No sign chosen", http.StatusBadRequest) // 400 bad request
 		return
 	}
 
 	if !slices.Contains(zodiacSigns, req.Sign) {
-		http.Error(w, "Invalid sign chosen", http.StatusBadRequest)
+		http.Error(w, "Invalid sign chosen", http.StatusBadRequest) // 400 bad request
 		return
 	}
 
-	var weather *WeatherResponse
+	var weather *WeatherResponse // stays nil if no location or lookup fails
 	if req.Lat != nil && req.Lon != nil {
 		lat, lon := *req.Lat, *req.Lon
-		if (lat > 90 || lat < -90) || (lon > 180 || lon < -180) {
+		if (lat > 90 || lat < -90) || (lon > 180 || lon < -180) { // valid coords range
 			http.Error(w, "lat/long out of bounds", http.StatusBadRequest)
 			return
 		}
 		wthr, err := GetWeather(*req.Lat, *req.Lon)
 		if err != nil {
-			log.Println("weather error: ", err)
+			log.Println("weather error: ", err) // carry on without weather
 		} else {
 			weather = &wthr
 		}
@@ -79,7 +90,7 @@ func ExcuseAPI(w http.ResponseWriter, r *http.Request) {
 	excuse, err := GenerateExcuse(req.Action, req.Sign, weather)
 	if err != nil {
 		log.Println("generate excuse:", err)
-		http.Error(w, "could not generate an excuse, try again", http.StatusBadGateway)
+		http.Error(w, "could not generate an excuse, try again", http.StatusBadGateway) // 502
 		return
 	}
 
@@ -87,18 +98,18 @@ func ExcuseAPI(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"excuse": excuse})
 }
 
-func WeatherAPI(w http.ResponseWriter, r *http.Request) {
+func WeatherAPI(w http.ResponseWriter, r *http.Request) { // get the weather using lat/long from user geo
 	lat, latErr := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 	lon, longErr := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
 
 	if latErr != nil || longErr != nil {
-		http.Error(w, "lat and lon are required numbers", http.StatusBadRequest)
+		http.Error(w, "lat and lon are required numbers", http.StatusBadRequest) // 400 bad request
 		return
 	}
 
 	weather, err := GetWeather(lat, lon)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadGateway)
+		http.Error(w, err.Error(), http.StatusBadGateway) // 502
 		return
 	}
 

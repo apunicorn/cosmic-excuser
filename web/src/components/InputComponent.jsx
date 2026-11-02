@@ -2,7 +2,7 @@ import { useState } from "react";
 import './InputComponent.css'
 
 export default function InputComponent({ onSubmit, loading }) {
-    const ZODIAC_SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+    const ZODIAC_SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']; // keep in sync with the server list
 
     const [sign, setSign] = useState('');
 
@@ -14,7 +14,7 @@ export default function InputComponent({ onSubmit, loading }) {
 
     const handleTextSubmit = (ev) => {
         ev.preventDefault();
-        if (text.trim()) onSubmit(text, sign);
+        if (text.trim()) onSubmit(text, sign); // ignore empty text
     }
 
     return (
@@ -22,7 +22,7 @@ export default function InputComponent({ onSubmit, loading }) {
             <label>What did you do?</label>
             <textarea id="text-input" value={text} onChange={handleTextChange} placeholder="Type here" />
             <select value={sign} required onChange={(e) => setSign(e.target.value)}> 
-                <option value="" required>Select your Zodiac sign</option>
+                <option value="" required>Select your Zodiac sign</option> 
                 {ZODIAC_SIGNS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
             <button type='submit' disabled={loading}>{loading ? 'Hmmm...' : 'Submit'}</button>
