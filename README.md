@@ -10,9 +10,12 @@ Cosmic Excuser takes whatever you did and writes you a convincing excuse that bl
 2. Go back end:
    - **Your zodiac sign**, checked against a fixed list on the server 
    - **Weather** at your location from [Open-Meteo](https://open-meteo.com/), free with no API key. It is fetched by the server and becomes part of the AI prompt
-   - **Planet positions**, including whether Mercury is in retrograde/gatorade/microwave - a classic
 3. It sends all of that to an LLM ([Google Gemini](https://ai.google.dev/)) with instructions to write a short, dry excuse 
-4. React front end.
+4. The React front end 
+    - form for what you did
+    - zodiac sign drop-down
+    - browser geolocation
+    - excuse renders
 
 
 ## Running it locally

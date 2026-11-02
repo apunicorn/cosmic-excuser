@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type WeatherResponse struct {
@@ -17,6 +18,8 @@ type WeatherResponse struct {
 	} `json:"current"`
 }
 
+var weatherClient = &http.Client{Timeout: 30 * time.Second}
+
 func GetWeather(lat, lon float64) (WeatherResponse, error) {
 	var weather WeatherResponse
 
@@ -27,7 +30,7 @@ func GetWeather(lat, lon float64) (WeatherResponse, error) {
 	query.Set("current", "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code")
 	weatherURL := "https://api.open-meteo.com/v1/forecast?" + query.Encode()
 
-	resp, err := http.Get(weatherURL)
+	resp, err := weatherClient.Get(weatherURL)
 	if err != nil {
 		return weather, err
 	}

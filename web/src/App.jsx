@@ -2,13 +2,9 @@ import { useState } from 'react'
 import './App.css'
 import InputComponent from './components/InputComponent.jsx' 
 import useLocation from './hooks/useLocation.js'
-import useWeather from './hooks/useWeather.js'
 
 function App() { 
-  const {coords} = useLocation()
-  const {weather} = useWeather(coords)
-  console.log(coords, weather);
-
+  const {coords, err: locationError} = useLocation()
   const [excuse, setExcuse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,7 +17,7 @@ function App() {
       const resp = await fetch('/api/excuse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, sign }),
+        body: JSON.stringify({ action, sign, lat: coords.lat, lon: coords.lon }),
       })
 
       if (!resp.ok) throw new Error(await resp.text())
@@ -36,9 +32,10 @@ function App() {
 
   return (
     <div className="app">
-      <h1>✨✨ Cosmic Excuser ✨✨</h1>
+      <h1>✨ Cosmic Excuser ✨</h1>
       <InputComponent onSubmit={getExcuse} loading={loading} />
       {error && <p className="error">{error}</p>}
+      {locationError && <p className="error">Couldn't get your location to blame the weather.</p>}
       {excuse && <p className="excuse">{excuse}</p>}
     </div>
   )
