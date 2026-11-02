@@ -1,4 +1,4 @@
-# Cosmic Excuser
+# ✨✨✨ Cosmic Excuser ✨✨✨
 
 **Did something questionable? Blame the universe!!**
 
