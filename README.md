@@ -49,6 +49,15 @@ export AI_API_KEY=your-key-here
 
 Run the above before `go run .`. 
 
+## Tests
+
+Go unit tests cover the API validation (bad input, fake zodiac signs, out-of-range coordinates), the temperature conversion, and the weather text sent to Gemini. 
+
+```sh
+cd server
+go test ./... -v
+```
+
 ## License
 
 Released under the terms of the [LICENSE](LICENSE) file.

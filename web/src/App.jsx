@@ -18,7 +18,12 @@ function App() {
       const resp = await fetch('/api/excuse', { // get excuse from gemini on backend
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, sign, lat: coords.lat, lon: coords.lon }), // weather API uses lat/long
+        body: JSON.stringify({ 
+          action, 
+          sign, 
+          lat: coords?.lat || null, // weather API uses lat/long
+          lon: coords?.lon || null // weather API uses lat/long
+        }), 
       })
 
       if (!resp.ok) throw new Error(await resp.text()) // show the server's error

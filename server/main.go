@@ -52,10 +52,6 @@ func ExcuseAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest) // 400 bad request
-		return
-	}
 	req.Action = strings.TrimSpace(req.Action)
 	if req.Action == "" || len(req.Action) > maxActionLength {
 		http.Error(w, "action must be 1-500 characters", http.StatusBadRequest) // 400 bad request
