@@ -1,7 +1,11 @@
 import { useState } from "react";
 import './InputComponent.css'
 
-export default function InputComponent() {
+export default function InputComponent({ onSubmit, loading }) {
+    const ZODIAC_SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+
+    const [sign, setSign] = useState('');
+
     const [text, setText] = useState('');
 
     const handleTextChange = (ev) => {
@@ -10,14 +14,18 @@ export default function InputComponent() {
 
     const handleTextSubmit = (ev) => {
         ev.preventDefault();
-        console.log('submitted!!! ', text);
+        if (text.trim()) onSubmit(text, sign);
     }
 
     return (
-        <form onSubmit={handleTextSubmit}>
+        <form className="excuse-form" onSubmit={handleTextSubmit}>
             <label>What did you do?</label>
-            <input id="text-input" type="input/text" value={text} onChange={handleTextChange} placeholder="Type here"></input>
-            <button type='submit'>Submit</button>
+            <textarea id="text-input" value={text} onChange={handleTextChange} placeholder="Type here" />
+            <select value={sign} required onChange={(e) => setSign(e.target.value)}> 
+                <option value="" required>Select your Zodiac sign</option>
+                {ZODIAC_SIGNS.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <button type='submit' disabled={loading}>{loading ? 'Hmmm...' : 'Submit'}</button>
         </form>
     );
 }

@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Go
+server/cosmic-excuser
+*.exe
+*.test
+*.out
+
+# Node
+node_modules/
+web/dist/
